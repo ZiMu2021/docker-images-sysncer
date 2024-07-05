@@ -42,15 +42,15 @@ jobs:
         run: |
           #!/usr/bin/env bash
           # frooodle/s-pdf:latest
-          # skopeo copy docker://docker.io/frooodle/s-pdf:latest docker://registry.cn-hangzhou.aliyuncs.com/linc-soft/s-pdf:latest
+          # skopeo copy docker://docker.io/frooodle/s-pdf:latest docker://registry.cn-hangzhou.aliyuncs.com/zi_mu/s-pdf:latest
           ubuntu/nginx:latest
-          # skopeo copy docker://docker.io/ubuntu/nginx:latest docker://registry.cn-hangzhou.aliyuncs.com/linc-soft/ubuntu-nginx:latest
+          # skopeo copy docker://docker.io/ubuntu/nginx:latest docker://registry.cn-hangzhou.aliyuncs.com/zi_mu/ubuntu-nginx:latest
           # dreamacro/clash
-          # skopeo copy docker://docker.io/dreamacro/clash:latest docker://registry.cn-hangzhou.aliyuncs.com/linc-soft/dreamacro-clash:latest
+          # skopeo copy docker://docker.io/dreamacro/clash:latest docker://registry.cn-hangzhou.aliyuncs.com/zi_mu/dreamacro-clash:latest
           # haishanh/yacd
-          # skopeo copy docker://docker.io/haishanh/yacd:latest docker://registry.cn-hangzhou.aliyuncs.com/linc-soft/haishanh-yacd:latest
+          # skopeo copy docker://docker.io/haishanh/yacd:latest docker://registry.cn-hangzhou.aliyuncs.com/zi_mu/haishanh-yacd:latest
           # rabbitmq
-          # skopeo copy docker://docker.io/library/rabbitmq:3.13-management docker://registry.cn-hangzhou.aliyuncs.com/linc-soft/rabbitmq:3.13-management
+          # skopeo copy docker://docker.io/library/rabbitmq:3.13-management docker://registry.cn-hangzhou.aliyuncs.com/zi_mu/rabbitmq:3.13-management
           # ubuntu:22.04
-          # skopeo copy docker://docker.io/library/ubuntu:22.04 docker://registry.cn-hangzhou.aliyuncs.com/linc-soft/ubuntu:22.04
+          # skopeo copy docker://docker.io/library/ubuntu:22.04 docker://registry.cn-hangzhou.aliyuncs.com/zi_mu/ubuntu:22.04
           
