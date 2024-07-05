@@ -43,7 +43,7 @@ jobs:
           #!/usr/bin/env bash
           # frooodle/s-pdf:latest
           # skopeo copy docker://docker.io/frooodle/s-pdf:latest docker://registry.cn-hangzhou.aliyuncs.com/linc-soft/s-pdf:latest
-          # ubuntu/nginx:latest
+          ubuntu/nginx:latest
           # skopeo copy docker://docker.io/ubuntu/nginx:latest docker://registry.cn-hangzhou.aliyuncs.com/linc-soft/ubuntu-nginx:latest
           # dreamacro/clash
           # skopeo copy docker://docker.io/dreamacro/clash:latest docker://registry.cn-hangzhou.aliyuncs.com/linc-soft/dreamacro-clash:latest
@@ -52,5 +52,5 @@ jobs:
           # rabbitmq
           # skopeo copy docker://docker.io/library/rabbitmq:3.13-management docker://registry.cn-hangzhou.aliyuncs.com/linc-soft/rabbitmq:3.13-management
           # ubuntu:22.04
-          skopeo copy docker://docker.io/library/ubuntu:22.04 docker://registry.cn-hangzhou.aliyuncs.com/linc-soft/ubuntu:22.04
+          # skopeo copy docker://docker.io/library/ubuntu:22.04 docker://registry.cn-hangzhou.aliyuncs.com/linc-soft/ubuntu:22.04
           
