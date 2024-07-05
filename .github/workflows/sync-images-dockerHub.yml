@@ -43,8 +43,8 @@ jobs:
           #!/usr/bin/env bash
           # frooodle/s-pdf:latest
           # skopeo copy docker://docker.io/frooodle/s-pdf:latest docker://registry.cn-hangzhou.aliyuncs.com/zi_mu/s-pdf:latest
-          ubuntu/nginx:latest
-          # skopeo copy docker://docker.io/ubuntu/nginx:latest docker://registry.cn-hangzhou.aliyuncs.com/zi_mu/ubuntu-nginx:latest
+          # ubuntu/nginx:latest
+          skopeo copy docker://docker.io/ubuntu/nginx:latest docker://registry.cn-hangzhou.aliyuncs.com/zi_mu/ubuntu-nginx:latest
           # dreamacro/clash
           # skopeo copy docker://docker.io/dreamacro/clash:latest docker://registry.cn-hangzhou.aliyuncs.com/zi_mu/dreamacro-clash:latest
           # haishanh/yacd
