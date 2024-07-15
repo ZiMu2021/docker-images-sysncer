@@ -40,11 +40,14 @@ jobs:
 
       - name: Use Skopeo Tools Sync Image to Docker Hub
         run: |
+          # Meting API
+          skopeo copy docker://docker.io/intemd/meting-api:latest docker://registry.cn-hangzhou.aliyuncs.com/zi_mu/meting-api:latest
+          
           #!/usr/bin/env bash
           # frooodle/s-pdf:latest
           # skopeo copy docker://docker.io/frooodle/s-pdf:latest docker://registry.cn-hangzhou.aliyuncs.com/zi_mu/s-pdf:latest
           # ubuntu/nginx:latest
-          skopeo copy docker://docker.io/ubuntu/nginx:latest docker://registry.cn-hangzhou.aliyuncs.com/zi_mu/ubuntu-nginx:latest
+          # skopeo copy docker://docker.io/ubuntu/nginx:latest docker://registry.cn-hangzhou.aliyuncs.com/zi_mu/ubuntu-nginx:latest
           # dreamacro/clash
           # skopeo copy docker://docker.io/dreamacro/clash:latest docker://registry.cn-hangzhou.aliyuncs.com/zi_mu/dreamacro-clash:latest
           # haishanh/yacd
