@@ -41,7 +41,16 @@ jobs:
       - name: Use Skopeo Tools Sync Image to Docker Hub
         run: |
           # Meting API
-          skopeo copy docker://docker.io/intemd/meting-api:latest docker://registry.cn-hangzhou.aliyuncs.com/zi_mu/meting-api:latest
+          # skopeo copy docker://docker.io/intemd/meting-api:latest docker://registry.cn-hangzhou.aliyuncs.com/zi_mu/meting-api:latest
+          
+          # MySQL:latest
+          skopeo copy docker://docker.io/mysql:latest docker://registry.cn-hangzhou.aliyuncs.com/zi_mu/mysql:latest
+          
+          # MySQL:5.7
+          skopeo copy docker://docker.io/mysql:5.7 docker://registry.cn-hangzhou.aliyuncs.com/zi_mu/mysql:5.7
+
+
+          
           
           #!/usr/bin/env bash
           # frooodle/s-pdf:latest
