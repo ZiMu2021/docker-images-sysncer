@@ -51,8 +51,10 @@ jobs:
 
           # Redis:latest
           skopeo copy docker://docker.io/library/redis:latest docker://registry.cn-hangzhou.aliyuncs.com/zi_mu/redis:latest
-
-
+          
+          # Zerotier-synology:latest
+          skopeo copy docker://docker.io/zerotier/zerotier-synology:latest docker://registry.cn-hangzhou.aliyuncs.com/zi_mu/zerotier-synology:latest
+          
           
           
           #!/usr/bin/env bash
