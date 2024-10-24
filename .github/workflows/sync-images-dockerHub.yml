@@ -45,10 +45,10 @@ jobs:
           #skopeo copy docker://docker.io/hsuyelin/nas-tools:latest docker://registry.cn-hangzhou.aliyuncs.com/zi_mu/nas-tools:latest
           
           # Qbittorrent:14.3.9
-          #skopeo copy docker://docker.io/lscr.io/linuxserver/qbittorrent:14.3.9 docker://registry.cn-hangzhou.aliyuncs.com/zi_mu/qbittorrent:14.3.9
+          skopeo copy docker://lscr.io/linuxserver/qbittorrent:14.3.9 docker://registry.cn-hangzhou.aliyuncs.com/zi_mu/qbittorrent:14.3.9
           
           # Plex:14.3.9
-          skopeo copy docker://docker.io/plexinc/pms-docker:latest docker://registry.cn-hangzhou.aliyuncs.com/zi_mu/pms-docker:latest
+          #skopeo copy docker://docker.io/plexinc/pms-docker:latest docker://registry.cn-hangzhou.aliyuncs.com/zi_mu/pms-docker:latest
           
           # Meting API:latest
           # skopeo copy docker://docker.io/intemd/meting-api:latest docker://registry.cn-hangzhou.aliyuncs.com/zi_mu/meting-api:latest
