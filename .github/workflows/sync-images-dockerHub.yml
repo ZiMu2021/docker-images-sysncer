@@ -40,6 +40,16 @@ jobs:
 
       - name: Use Skopeo Tools Sync Image to Docker Hub
         run: |
+          
+          # Nas-tools:latest
+          skopeo copy docker://docker.io/hsuyelin/nas-tools:latest docker://registry.cn-hangzhou.aliyuncs.com/zi_mu/nas-tools:latest
+          
+          # Qbittorrent:14.3.9
+          skopeo copy docker://docker.io/lscr.io/linuxserver/qbittorrent:14.3.9 docker://registry.cn-hangzhou.aliyuncs.com/zi_mu/qbittorrent:14.3.9
+          
+          # Plex:14.3.9
+          skopeo copy docker://docker.io/plexinc/pms-docker:latest docker://registry.cn-hangzhou.aliyuncs.com/zi_mu/plexinc/pms-docker:latest
+          
           # Meting API:latest
           # skopeo copy docker://docker.io/intemd/meting-api:latest docker://registry.cn-hangzhou.aliyuncs.com/zi_mu/meting-api:latest
           
@@ -50,13 +60,13 @@ jobs:
           # skopeo copy docker://docker.io/mysql:5.7 docker://registry.cn-hangzhou.aliyuncs.com/zi_mu/mysql:5.7
 
           # Redis:latest
-          skopeo copy docker://docker.io/library/redis:latest docker://registry.cn-hangzhou.aliyuncs.com/zi_mu/redis:latest
+          #skopeo copy docker://docker.io/library/redis:latest docker://registry.cn-hangzhou.aliyuncs.com/zi_mu/redis:latest
           
           # Zerotier-synology:latest
-          skopeo copy docker://docker.io/zerotier/zerotier-synology:latest docker://registry.cn-hangzhou.aliyuncs.com/zi_mu/zerotier-synology:latest
+          #skopeo copy docker://docker.io/zerotier/zerotier-synology:latest docker://registry.cn-hangzhou.aliyuncs.com/zi_mu/zerotier-synology:latest
           
           
-          
+          #################################### OLD ↓#################################################################################
           #!/usr/bin/env bash
           # frooodle/s-pdf:latest
           # skopeo copy docker://docker.io/frooodle/s-pdf:latest docker://registry.cn-hangzhou.aliyuncs.com/zi_mu/s-pdf:latest
