@@ -45,7 +45,7 @@ jobs:
           skopeo copy docker://docker.io/corentinth/it-tools:latest docker://registry.cn-hangzhou.aliyuncs.com/zi_mu/it-tools:latest
 
           # Talebook:latest
-          skopeo copy docker://docker.io/talebook/talebook:latest docker://registry.cn-hangzhou.aliyuncs.com/zi_mu/talebook:latest
+          #skopeo copy docker://docker.io/talebook/talebook:latest docker://registry.cn-hangzhou.aliyuncs.com/zi_mu/talebook:latest
           
           # Nas-tools:latest
           #skopeo copy docker://docker.io/hsuyelin/nas-tools:latest docker://registry.cn-hangzhou.aliyuncs.com/zi_mu/nas-tools:latest
