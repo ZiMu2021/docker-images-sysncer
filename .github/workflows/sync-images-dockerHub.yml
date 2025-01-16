@@ -40,8 +40,12 @@ jobs:
 
       - name: Use Skopeo Tools Sync Image to Docker Hub
         run: |
+        
+          # linux-command:latest
+          skopeo copy docker://docker.io/wcjiang/linux-command:latest docker://registry.cn-hangzhou.aliyuncs.com/zi_mu/linux-command:latest
+
           # flaresolverr:latest
-          skopeo copy docker://docker.io/flaresolverr/flaresolverr:latest docker://registry.cn-hangzhou.aliyuncs.com/zi_mu/flaresolverr:latest
+          # skopeo copy docker://docker.io/flaresolverr/flaresolverr:latest docker://registry.cn-hangzhou.aliyuncs.com/zi_mu/flaresolverr:latest
           
           # alist:latest-ffmpeg
           # skopeo copy docker://docker.io/xhofe/alist:latest-ffmpeg docker://registry.cn-hangzhou.aliyuncs.com/zi_mu/alist:latest-ffmpeg
