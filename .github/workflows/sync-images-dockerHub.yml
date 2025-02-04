@@ -41,14 +41,17 @@ jobs:
       - name: Use Skopeo Tools Sync Image to Docker Hub
         run: |
         
+          #solo:latest
+          skopeo copy docker://docker.io/b3log/solo:latest docker://registry.cn-hangzhou.aliyuncs.com/zi_mu/solo:latest
+          
           # linux-command:latest
-          skopeo copy docker://docker.io/wcjiang/linux-command:latest docker://registry.cn-hangzhou.aliyuncs.com/zi_mu/linux-command:latest
+          #skopeo copy docker://docker.io/wcjiang/linux-command:latest docker://registry.cn-hangzhou.aliyuncs.com/zi_mu/linux-command:latest
 
           # flaresolverr:latest
-          # skopeo copy docker://docker.io/flaresolverr/flaresolverr:latest docker://registry.cn-hangzhou.aliyuncs.com/zi_mu/flaresolverr:latest
+          #skopeo copy docker://docker.io/flaresolverr/flaresolverr:latest docker://registry.cn-hangzhou.aliyuncs.com/zi_mu/flaresolverr:latest
           
           # alist:latest-ffmpeg
-          # skopeo copy docker://docker.io/xhofe/alist:latest-ffmpeg docker://registry.cn-hangzhou.aliyuncs.com/zi_mu/alist:latest-ffmpeg
+          #skopeo copy docker://docker.io/xhofe/alist:latest-ffmpeg docker://registry.cn-hangzhou.aliyuncs.com/zi_mu/alist:latest-ffmpeg
         
           # It-tools:latest
           #skopeo copy docker://docker.io/corentinth/it-tools:latest docker://registry.cn-hangzhou.aliyuncs.com/zi_mu/it-tools:latest
@@ -60,7 +63,7 @@ jobs:
           #skopeo copy docker://docker.io/hsuyelin/nas-tools:latest docker://registry.cn-hangzhou.aliyuncs.com/zi_mu/nas-tools:latest
           
           # Qbittorrent:14.3.9
-          skopeo copy docker://lscr.io/linuxserver/qbittorrent:14.3.9 docker://registry.cn-hangzhou.aliyuncs.com/zi_mu/qbittorrent:14.3.9
+          #skopeo copy docker://lscr.io/linuxserver/qbittorrent:14.3.9 docker://registry.cn-hangzhou.aliyuncs.com/zi_mu/qbittorrent:14.3.9
           
           # Plex:14.3.9
           #skopeo copy docker://docker.io/plexinc/pms-docker:latest docker://registry.cn-hangzhou.aliyuncs.com/zi_mu/pms-docker:latest
