@@ -41,8 +41,11 @@ jobs:
       - name: Use Skopeo Tools Sync Image to Docker Hub
         run: |
         
+          #ollama:latest
+          skopeo copy docker://docker.io/ollama/ollama:latest docker://registry.cn-hangzhou.aliyuncs.com/zi_mu/solo:latest
+        
           #solo:latest
-          skopeo copy docker://docker.io/b3log/solo:latest docker://registry.cn-hangzhou.aliyuncs.com/zi_mu/solo:latest
+          #skopeo copy docker://docker.io/b3log/solo:latest docker://registry.cn-hangzhou.aliyuncs.com/zi_mu/solo:latest
           
           # linux-command:latest
           #skopeo copy docker://docker.io/wcjiang/linux-command:latest docker://registry.cn-hangzhou.aliyuncs.com/zi_mu/linux-command:latest
