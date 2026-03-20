@@ -72,7 +72,7 @@ jobs:
           source retry.sh
           
           declare -A IMAGE_MAP=(
-            ["ghcr.io/openclaw/openclaw:latest"]="registry.cn-hangzhou.aliyuncs.com/zi_mu/openclaw:latest"
+            ["ghcr.io/openclaw/openclaw:latest"]="registry.cn-hangzhou.aliyuncs.com/zimu_hangzhou2/openclaw:latest"
             # 可以继续添加更多镜像
           )
           
