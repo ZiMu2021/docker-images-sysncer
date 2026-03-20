@@ -126,7 +126,7 @@ jobs:
 
       # 保存同步状态
       - name: Upload sync status
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: sync-status
           path: sync_status.md
