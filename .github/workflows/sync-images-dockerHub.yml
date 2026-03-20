@@ -1,5 +1,8 @@
 name: Aliyun-Image-Sync
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true  # 提前适配 Node.js 24
+
 on:
   repository_dispatch:
     types: [sync-image]
@@ -12,7 +15,7 @@ on:
         required: false
         default: false
   push:
-    branches: [ "main" ]
+    branches: [ "ImageSyncHub" ]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -24,25 +27,23 @@ jobs:
     timeout-minutes: 120
     
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4.2.2
 
       - name: Install Skopeo and jq
         run: |
           sudo apt-get update && sudo apt-get install -y skopeo jq
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2.9.1
+        uses: docker/setup-buildx-action@v3.8.0
 
-      # 修复：重命名为准确的阿里云登录
       - name: Login to Aliyun Container Registry
-        uses: docker/login-action@v2.2.0
+        uses: docker/login-action@v3.3.0
         with:
           registry: registry.cn-hangzhou.aliyuncs.com
-          username: ${{ secrets.DOCKER_USERNAME }}  # 建议重命名secret
-          password: ${{ secrets.DOCKER_PASSWORD }}  # 建议重命名secret
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
           logout: false
 
-      # 添加重试函数
       - name: Define retry function
         run: |
           cat > retry.sh << 'EOF'
@@ -72,27 +73,26 @@ jobs:
           
           declare -A IMAGE_MAP=(
             ["ghcr.io/openclaw/openclaw:latest"]="registry.cn-hangzhou.aliyuncs.com/zi_mu/openclaw:latest"
+            # 可以继续添加更多镜像
           )
           
-          # 创建状态记录文件
           echo "# 镜像同步状态 - $(date)" > sync_status.md
+          echo "| 源镜像 | 目标镜像 | 状态 | 详情 |" >> sync_status.md
+          echo "|--------|----------|------|------|" >> sync_status.md
           
           for SOURCE_IMG in "${!IMAGE_MAP[@]}"; do
             TARGET_IMG=${IMAGE_MAP[$SOURCE_IMG]}
             echo -e "\n===== 检测镜像: $SOURCE_IMG ====="
             
-            # 获取源镜像Digest
             SOURCE_DIGEST=$(skopeo inspect "docker://$SOURCE_IMG" 2>/dev/null | jq -r '.Digest')
             if [[ -z "$SOURCE_DIGEST" || "$SOURCE_DIGEST" == "null" ]]; then
               echo "⚠️  获取源镜像Digest失败，跳过：$SOURCE_IMG"
-              echo "- ❌ $SOURCE_IMG: 获取Digest失败" >> sync_status.md
+              echo "| $SOURCE_IMG | $TARGET_IMG | ❌ 失败 | 获取Digest失败 |" >> sync_status.md
               continue
             fi
             
-            # 获取目标镜像Digest
             TARGET_DIGEST=$(skopeo inspect "docker://$TARGET_IMG" 2>/dev/null | jq -r '.Digest' || echo "none")
             
-            # 判断是否需要同步
             NEED_SYNC=false
             if [[ "$SOURCE_DIGEST" != "$TARGET_DIGEST" ]]; then
               NEED_SYNC=true
@@ -105,40 +105,39 @@ jobs:
             if [[ "$NEED_SYNC" == "true" ]]; then
               echo "🔄 开始同步 ($REASON): $SOURCE_IMG → $TARGET_IMG"
               
-              # 使用重试机制同步
-              if retry skopeo copy "docker://$SOURCE_IMG" "docker://$TARGET_IMG"; then
-                echo "✅ 同步完成：$TARGET_IMG"
-                echo "- ✅ $SOURCE_IMG → $TARGET_IMG: 同步成功" >> sync_status.md
+              START_TIME=$(date +%s)
+              if retry skopeo copy --all "docker://$SOURCE_IMG" "docker://$TARGET_IMG"; then
+                END_TIME=$(date +%s)
+                DURATION=$((END_TIME - START_TIME))
+                echo "✅ 同步完成（耗时 ${DURATION}秒）：$TARGET_IMG"
+                echo "| $SOURCE_IMG | $TARGET_IMG | ✅ 成功 | 耗时 ${DURATION}秒 |" >> sync_status.md
               else
                 echo "❌ 同步失败：$SOURCE_IMG"
-                echo "- ❌ $SOURCE_IMG → $TARGET_IMG: 同步失败" >> sync_status.md
-                # 不退出，继续同步其他镜像
+                echo "| $SOURCE_IMG | $TARGET_IMG | ❌ 失败 | 同步错误 |" >> sync_status.md
               fi
             else
               echo "✅ 镜像已是最新，无需同步：$SOURCE_IMG"
-              echo "- ⏭️ $SOURCE_IMG: 已是最新" >> sync_status.md
+              echo "| $SOURCE_IMG | $TARGET_IMG | ⏭️ 跳过 | 已是最新 |" >> sync_status.md
             fi
           done
           
-          # 显示同步摘要
           echo -e "\n===== 同步摘要 ====="
           cat sync_status.md
 
-      # 保存同步状态
       - name: Upload sync status
         uses: actions/upload-artifact@v4
         with:
-          name: sync-status
+          name: sync-status-${{ github.run_id }}
           path: sync_status.md
+          retention-days: 30  # 保留30天
 
-      # 失败通知
       - name: Send failure notification
         if: failure()
         run: |
-          echo "同步过程发生错误，请检查日志"
-          # 这里可以添加钉钉/企业微信/webhook通知
+          echo "❌ 同步过程发生错误"
+          echo "工作流运行: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          # 可以添加实际的通知逻辑
 
-      # 清理资源
       - name: Cleanup
         if: always()
         run: |
