@@ -71,7 +71,7 @@ jobs:
           source retry.sh
           
           declare -A IMAGE_MAP=(
-            ["docker.io/ollama/ollama:latest"]="registry.cn-hangzhou.aliyuncs.com/zimu_hangzhou2/ollama:latest"
+            ["ghcr.io/openclaw/openclaw:latest"]="registry.cn-hangzhou.aliyuncs.com/zi_mu/openclaw:latest"
           )
           
           # 创建状态记录文件
