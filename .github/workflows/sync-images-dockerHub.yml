@@ -1,104 +1,146 @@
-# This is a basic workflow to help you get started with Actions
+name: Aliyun-Image-Sync
 
-name: Sync-Images-to-DockerHub
-
-# Controls when the workflow will run
 on:
-  # Triggers the workflow on push or pull request events but only for the "main" branch
+  repository_dispatch:
+    types: [sync-image]
+  schedule:
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+    inputs:
+      force_sync:
+        description: '强制同步所有镜像'
+        required: false
+        default: false
   push:
     branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
 
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
-  build:
-    # The type of runner that the job will run on
+  sync-images:
     runs-on: ubuntu-latest
-
-    # Steps represent a sequence of tasks that will be executed as part of the job
+    timeout-minutes: 120
+    
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v4
 
-      # Runs a single command using the runners shell
+      - name: Install Skopeo and jq
+        run: |
+          sudo apt-get update && sudo apt-get install -y skopeo jq
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2.9.1
 
-      # Runs a set of commands using the runners shell
-      - name: Login to Docker Hub
+      # 修复：重命名为准确的阿里云登录
+      - name: Login to Aliyun Container Registry
         uses: docker/login-action@v2.2.0
         with:
           registry: registry.cn-hangzhou.aliyuncs.com
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
+          username: ${{ secrets.ALIYUN_USERNAME }}  # 建议重命名secret
+          password: ${{ secrets.ALIYUN_PASSWORD }}  # 建议重命名secret
           logout: false
 
-      - name: Use Skopeo Tools Sync Image to Docker Hub
+      # 添加重试函数
+      - name: Define retry function
         run: |
-        
-          #ollama:latest
-          skopeo copy docker://docker.io/ollama/ollama:latest docker://registry.cn-hangzhou.aliyuncs.com/zi_mu/ollama:latest
-        
-          #solo:latest
-          #skopeo copy docker://docker.io/b3log/solo:latest docker://registry.cn-hangzhou.aliyuncs.com/zi_mu/solo:latest
-          
-          # linux-command:latest
-          #skopeo copy docker://docker.io/wcjiang/linux-command:latest docker://registry.cn-hangzhou.aliyuncs.com/zi_mu/linux-command:latest
+          cat > retry.sh << 'EOF'
+          retry() {
+            local n=1
+            local max=3
+            local delay=5
+            while true; do
+              "$@" && break || {
+                if [[ $n -lt $max ]]; then
+                  ((n++))
+                  echo "命令失败，${delay}秒后重试 ($n/$max)..."
+                  sleep $delay;
+                else
+                  echo "重试${max}次后仍然失败"
+                  return 1
+                fi
+              }
+            done
+          }
+          EOF
 
-          # flaresolverr:latest
-          #skopeo copy docker://docker.io/flaresolverr/flaresolverr:latest docker://registry.cn-hangzhou.aliyuncs.com/zi_mu/flaresolverr:latest
+      - name: Sync Images to Aliyun
+        run: |
+          set -e
+          source retry.sh
           
-          # alist:latest-ffmpeg
-          #skopeo copy docker://docker.io/xhofe/alist:latest-ffmpeg docker://registry.cn-hangzhou.aliyuncs.com/zi_mu/alist:latest-ffmpeg
-        
-          # It-tools:latest
-          #skopeo copy docker://docker.io/corentinth/it-tools:latest docker://registry.cn-hangzhou.aliyuncs.com/zi_mu/it-tools:latest
+          declare -A IMAGE_MAP=(
+            ["docker.io/ollama/ollama:latest"]="registry.cn-hangzhou.aliyuncs.com/zimu_hangzhou2/ollama:latest"
+          )
+          
+          # 创建状态记录文件
+          echo "# 镜像同步状态 - $(date)" > sync_status.md
+          
+          for SOURCE_IMG in "${!IMAGE_MAP[@]}"; do
+            TARGET_IMG=${IMAGE_MAP[$SOURCE_IMG]}
+            echo -e "\n===== 检测镜像: $SOURCE_IMG ====="
+            
+            # 获取源镜像Digest
+            SOURCE_DIGEST=$(skopeo inspect "docker://$SOURCE_IMG" 2>/dev/null | jq -r '.Digest')
+            if [[ -z "$SOURCE_DIGEST" || "$SOURCE_DIGEST" == "null" ]]; then
+              echo "⚠️  获取源镜像Digest失败，跳过：$SOURCE_IMG"
+              echo "- ❌ $SOURCE_IMG: 获取Digest失败" >> sync_status.md
+              continue
+            fi
+            
+            # 获取目标镜像Digest
+            TARGET_DIGEST=$(skopeo inspect "docker://$TARGET_IMG" 2>/dev/null | jq -r '.Digest' || echo "none")
+            
+            # 判断是否需要同步
+            NEED_SYNC=false
+            if [[ "$SOURCE_DIGEST" != "$TARGET_DIGEST" ]]; then
+              NEED_SYNC=true
+              REASON="Digest不一致"
+            elif [[ "${{ github.event.inputs.force_sync }}" == "true" ]]; then
+              NEED_SYNC=true
+              REASON="手动强制同步"
+            fi
+            
+            if [[ "$NEED_SYNC" == "true" ]]; then
+              echo "🔄 开始同步 ($REASON): $SOURCE_IMG → $TARGET_IMG"
+              
+              # 使用重试机制同步
+              if retry skopeo copy "docker://$SOURCE_IMG" "docker://$TARGET_IMG"; then
+                echo "✅ 同步完成：$TARGET_IMG"
+                echo "- ✅ $SOURCE_IMG → $TARGET_IMG: 同步成功" >> sync_status.md
+              else
+                echo "❌ 同步失败：$SOURCE_IMG"
+                echo "- ❌ $SOURCE_IMG → $TARGET_IMG: 同步失败" >> sync_status.md
+                # 不退出，继续同步其他镜像
+              fi
+            else
+              echo "✅ 镜像已是最新，无需同步：$SOURCE_IMG"
+              echo "- ⏭️ $SOURCE_IMG: 已是最新" >> sync_status.md
+            fi
+          done
+          
+          # 显示同步摘要
+          echo -e "\n===== 同步摘要 ====="
+          cat sync_status.md
 
-          # Talebook:latest
-          #skopeo copy docker://docker.io/talebook/talebook:latest docker://registry.cn-hangzhou.aliyuncs.com/zi_mu/talebook:latest
-          
-          # Nas-tools:latest
-          #skopeo copy docker://docker.io/hsuyelin/nas-tools:latest docker://registry.cn-hangzhou.aliyuncs.com/zi_mu/nas-tools:latest
-          
-          # Qbittorrent:14.3.9
-          #skopeo copy docker://lscr.io/linuxserver/qbittorrent:14.3.9 docker://registry.cn-hangzhou.aliyuncs.com/zi_mu/qbittorrent:14.3.9
-          
-          # Plex:14.3.9
-          #skopeo copy docker://docker.io/plexinc/pms-docker:latest docker://registry.cn-hangzhou.aliyuncs.com/zi_mu/pms-docker:latest
-          
-          # Meting API:latest
-          # skopeo copy docker://docker.io/intemd/meting-api:latest docker://registry.cn-hangzhou.aliyuncs.com/zi_mu/meting-api:latest
-          
-          # MySQL:latest
-          # skopeo copy docker://docker.io/mysql:latest docker://registry.cn-hangzhou.aliyuncs.com/zi_mu/mysql:latest
-          
-          # MySQL:5.7
-          # skopeo copy docker://docker.io/mysql:5.7 docker://registry.cn-hangzhou.aliyuncs.com/zi_mu/mysql:5.7
+      # 保存同步状态
+      - name: Upload sync status
+        uses: actions/upload-artifact@v3
+        with:
+          name: sync-status
+          path: sync_status.md
 
-          # Redis:latest
-          #skopeo copy docker://docker.io/library/redis:latest docker://registry.cn-hangzhou.aliyuncs.com/zi_mu/redis:latest
-          
-          # Zerotier-synology:latest
-          #skopeo copy docker://docker.io/zerotier/zerotier-synology:latest docker://registry.cn-hangzhou.aliyuncs.com/zi_mu/zerotier-synology:latest
-          
-          
-          #################################### OLD ↓#################################################################################
-          #!/usr/bin/env bash
-          # frooodle/s-pdf:latest
-          # skopeo copy docker://docker.io/frooodle/s-pdf:latest docker://registry.cn-hangzhou.aliyuncs.com/zi_mu/s-pdf:latest
-          # ubuntu/nginx:latest
-          # skopeo copy docker://docker.io/ubuntu/nginx:latest docker://registry.cn-hangzhou.aliyuncs.com/zi_mu/ubuntu-nginx:latest
-          # dreamacro/clash
-          # skopeo copy docker://docker.io/dreamacro/clash:latest docker://registry.cn-hangzhou.aliyuncs.com/zi_mu/dreamacro-clash:latest
-          # haishanh/yacd
-          # skopeo copy docker://docker.io/haishanh/yacd:latest docker://registry.cn-hangzhou.aliyuncs.com/zi_mu/haishanh-yacd:latest
-          # rabbitmq
-          # skopeo copy docker://docker.io/library/rabbitmq:3.13-management docker://registry.cn-hangzhou.aliyuncs.com/zi_mu/rabbitmq:3.13-management
-          # ubuntu:22.04
-          # skopeo copy docker://docker.io/library/ubuntu:22.04 docker://registry.cn-hangzhou.aliyuncs.com/zi_mu/ubuntu:22.04
-          
+      # 失败通知
+      - name: Send failure notification
+        if: failure()
+        run: |
+          echo "同步过程发生错误，请检查日志"
+          # 这里可以添加钉钉/企业微信/webhook通知
+
+      # 清理资源
+      - name: Cleanup
+        if: always()
+        run: |
+          rm -rf /tmp/skopeo* 2>/dev/null || true
+          docker system prune -f 2>/dev/null || true
