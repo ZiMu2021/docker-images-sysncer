@@ -72,7 +72,8 @@ jobs:
           source retry.sh
           
           declare -A IMAGE_MAP=(
-            ["vaultwarden/server:latest"]="registry.cn-hangzhou.aliyuncs.com/zimu_hangzhou2/vaultwarden:latest"
+            ["gitea/gitea:latest:latest"]="registry.cn-hangzhou.aliyuncs.com/zimu_hangzhou2/gitea:latest"
+            # ["vaultwarden/server:latest"]="registry.cn-hangzhou.aliyuncs.com/zimu_hangzhou2/vaultwarden:latest"
             # ["imaegoo/twikoo:latest"]="registry.cn-hangzhou.aliyuncs.com/zimu_hangzhou2/twikoo:latest"
             # ["louislam/uptime-kuma:latest"]="registry.cn-hangzhou.aliyuncs.com/zimu_hangzhou2/uptime-kuma:latest"
             # ["kodcloud/kodbox:latest"]="registry.cn-hangzhou.aliyuncs.com/zimu_hangzhou2/kodcloud:latest"
