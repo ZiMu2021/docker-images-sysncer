@@ -72,7 +72,8 @@ jobs:
           source retry.sh
           
           declare -A IMAGE_MAP=(
-            ["library/couchdb:3.3"]="registry.cn-hangzhou.aliyuncs.com/zimu_hangzhou2/couchdb_3_3:latest"
+            ["mikolatero/vlmcsd:latest"]="registry.cn-hangzhou.aliyuncs.com/zimu_hangzhou2/vlmcsd:latest"
+            # ["library/couchdb:3.3"]="registry.cn-hangzhou.aliyuncs.com/zimu_hangzhou2/couchdb_3_3:latest"
             # ["getmeili/meilisearch:v1.41.0"]="registry.cn-hangzhou.aliyuncs.com/zimu_hangzhou2/meilisearch_1_41_0:latest"
             # ["gcr.io/zenika-hub/alpine-chrome:124"]="registry.cn-hangzhou.aliyuncs.com/zimu_hangzhou2/alpine_chrome_124:latest"
             # ["ghcr.io/karakeep-app/karakeep:0.32.0"]="registry.cn-hangzhou.aliyuncs.com/zimu_hangzhou2/karakeep_0_32_0:latest"
